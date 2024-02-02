@@ -71,11 +71,11 @@ class Root(object):
         if newpass != newpassconfirm:
             html_body = 'confirmation did not match'
             return html_header + html_body + html_footer
-        with iRODSSession(  host='localhost',
-                            port=1247,
+        with iRODSSession(  host=cherrypy.request.app.config['password_booth']['irods_host'],
+                            port=cherrypy.request.app.config['password_booth']['irods_port'],
+                            zone=cherrypy.request.app.config['password_booth']['irods_zone'],
                             user=username,
-                            password=oldpass,
-                            zone='tempZone') as session:
+                            password=oldpass) as session:
             try:
                 authenticated_user = session.users.get(session.username)
                 authenticated_user.modify_password(oldpass, newpass)
@@ -86,4 +86,4 @@ class Root(object):
                 return html_header + html_body + html_footer
 
 if __name__ == '__main__':
-   cherrypy.quickstart(Root(), '/')
+    cherrypy.quickstart(Root(), '/', 'app.config')

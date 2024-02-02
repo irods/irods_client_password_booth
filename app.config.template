@@ -1,0 +1,13 @@
+[global]
+server.socket_host: '0.0.0.0'
+server.socket_port: 8000
+#environment: 'production'
+
+[/]
+tools.gzip.on: True
+
+[password_booth]
+#irods_host = 'host.docker.internal'
+irods_host = 'irods.example.org'
+irods_zone = 'tempZone'
+irods_port = 1247
