@@ -1,4 +1,5 @@
 import cherrypy
+import ssl
 from irods.session import iRODSSession
 
 defaults = {
@@ -12,7 +13,6 @@ def merge_custom_into_default_config(config):
     return defaults
 
 def get_header(config):
-    defaults.update(config)
     h = '''\
 <html>
     <head>
@@ -20,28 +20,42 @@ def get_header(config):
     <link rel="stylesheet" href="app.css">
     </head>
     <body>
-'''.format(defaults['title'])
-    return h + defaults['custom_html_header']
+'''.format(config['title'])
+    return h + config['custom_html_header']
 
 def get_footer(config):
-    defaults.update(config)
     f = '''\
     </body>
 </html>
 '''
-    return defaults['custom_html_footer'] + f
+    return config['custom_html_footer'] + f
+
+def get_ssl_settings(config):
+    ssl_settings = {'client_server_negotiation': config['client_server_negotiation'],
+                    'client_server_policy': config['client_server_policy'],
+                    'encryption_algorithm': config['encryption_algorithm'],
+                    'encryption_key_size': config['encryption_key_size'],
+                    'encryption_num_hash_rounds': config['encryption_num_hash_rounds'],
+                    'encryption_salt_size': config['encryption_salt_size'],
+                    'ssl_verify_server': config['ssl_verify_server'],
+                    'ssl_ca_certificate_file': config['ssl_ca_certificate_file']
+    }
+    return ssl_settings
 
 class Root(object):
 
     @cherrypy.expose
     def test(self):
-        with iRODSSession(  host=cherrypy.request.app.config['password_booth']['irods_host'],
-                            port=cherrypy.request.app.config['password_booth']['irods_port'],
-                            zone=cherrypy.request.app.config['password_booth']['irods_zone'],
+        config = merge_custom_into_default_config(cherrypy.request.app.config['password_booth'])
+        html_header = get_header(config)
+        html_footer = get_footer(config)
+        ssl_settings = get_ssl_settings(config)
+        with iRODSSession(  host=config['irods_host'],
+                            port=config['irods_port'],
+                            zone=config['irods_zone'],
                             user='alice',
-                            password='apass') as session:
-            html_header = get_header(cherrypy.request.app.config['password_booth'])
-            html_footer = get_footer(cherrypy.request.app.config['password_booth'])
+                            password='apass',
+                            **ssl_settings) as session:
             try:
                 h = session.collections.get("/{}/home/{}".format(session.zone, session.username))
                 html_body = ""
@@ -62,8 +76,8 @@ class Root(object):
     @cherrypy.expose
     def index(self):
         config = merge_custom_into_default_config(cherrypy.request.app.config['password_booth'])
-        html_header = get_header(cherrypy.request.app.config['password_booth'])
-        html_footer = get_footer(cherrypy.request.app.config['password_booth'])
+        html_header = get_header(config)
+        html_footer = get_footer(config)
         html_body = '''\
         <p>
         <form method="post" action="modify_password">
@@ -84,8 +98,9 @@ class Root(object):
     def modify_password(self, *args, **kwargs):
         if cherrypy.request.method != 'POST':
             return 'only POST supported'
-        html_header = get_header(cherrypy.request.app.config['password_booth'])
-        html_footer = get_footer(cherrypy.request.app.config['password_booth'])
+        config = merge_custom_into_default_config(cherrypy.request.app.config['password_booth'])
+        html_header = get_header(config)
+        html_footer = get_footer(config)
         username = kwargs.get('username')
         oldpass = kwargs.get('oldpass')
         newpass = kwargs.get('newpass')
@@ -105,11 +120,13 @@ class Root(object):
         if newpass != newpassconfirm:
             html_body = 'confirmation did not match'
             return html_header + html_body + html_footer
-        with iRODSSession(  host=cherrypy.request.app.config['password_booth']['irods_host'],
-                            port=cherrypy.request.app.config['password_booth']['irods_port'],
-                            zone=cherrypy.request.app.config['password_booth']['irods_zone'],
+        ssl_settings = get_ssl_settings(config)
+        with iRODSSession(  host=config['irods_host'],
+                            port=config['irods_port'],
+                            zone=config['irods_zone'],
                             user=username,
-                            password=oldpass) as session:
+                            password=oldpass,
+                            **ssl_settings) as session:
             try:
                 authenticated_user = session.users.get(session.username)
                 authenticated_user.modify_password(oldpass, newpass)

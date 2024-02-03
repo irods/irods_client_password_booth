@@ -22,6 +22,8 @@ irods_zone = 'tempZone'
 irods_port = 1247
 ```
 
+iRODS TLS/SSL settings are in the same section.
+
 Other configuration settings can affect the layout:
 
 ```

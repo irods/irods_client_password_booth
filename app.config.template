@@ -15,10 +15,18 @@ tools.staticfile.on: True
 tools.staticfile.filename: "/favicon.ico"
 
 [password_booth]
+#title = 'iRODS Password Booth'
+#custom_html_header = ''
+#custom_html_footer = ''
 #irods_host = 'host.docker.internal'
 irods_host = 'irods.example.org'
 irods_zone = 'tempZone'
 irods_port = 1247
-#title = 'iRODS Password Booth'
-#custom_html_header = ''
-#custom_html_footer = ''
+client_server_negotiation = 'request_server_negotiation'
+client_server_policy = 'CS_NEG_REFUSE'
+encryption_algorithm = 'AES-256-CBC'
+encryption_key_size = 32
+encryption_num_hash_rounds = 16
+encryption_salt_size = 8
+ssl_verify_server = 'cert'
+ssl_ca_certificate_file = '/ssl.crt'
