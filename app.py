@@ -65,6 +65,32 @@ def get_footer(config):
 class Root(object):
 
     @cherrypy.expose
+    def test(self):
+        with iRODSSession(  host=cherrypy.request.app.config['password_booth']['irods_host'],
+                            port=cherrypy.request.app.config['password_booth']['irods_port'],
+                            zone=cherrypy.request.app.config['password_booth']['irods_zone'],
+                            user='alice',
+                            password='apass') as session:
+            html_header = get_header(cherrypy.request.app.config['password_booth'])
+            html_footer = get_footer(cherrypy.request.app.config['password_booth'])
+            try:
+                h = session.collections.get("/{}/home/{}".format(session.zone, session.username))
+                html_body = ""
+                html_body += "dir[{}]".format(dir(h))
+                html_body += "<br/><br/>home collection"
+                html_body += "<br/>- id[{}] path[{}] ctime[{}] mtime[{}]".format(h.id, h.path, h.create_time, h.modify_time)
+                html_body += "<br/><br/>subcollections"
+                for c in h.subcollections:
+                    html_body += "<br/>- id[{}] path[{}] ctime[{}] mtime[{}]".format(c.id, c.path, c.create_time, c.modify_time)
+                html_body += "<br/><br/>data_objects"
+                for d in h.data_objects:
+                    html_body += "<br/>- id[{}] name[{}] ctime[{}] mtime[{}]".format(d.id, d.name, d.create_time, d.modify_time)
+                return html_header + html_body + html_footer
+            except Exception as e:
+                html_body = repr(e)
+                return html_header + html_body + html_footer
+
+    @cherrypy.expose
     def index(self):
         config = merge_custom_into_default_config(cherrypy.request.app.config['password_booth'])
         html_header = get_header(cherrypy.request.app.config['password_booth'])
