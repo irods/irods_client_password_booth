@@ -6,6 +6,10 @@ server.socket_port: 8000
 [/]
 tools.gzip.on: True
 
+[/app.css]
+tools.staticfile.on: True
+tools.staticfile.filename: "/app.css"
+
 [/favicon.ico]
 tools.staticfile.on: True
 tools.staticfile.filename: "/favicon.ico"
@@ -16,7 +20,5 @@ irods_host = 'irods.example.org'
 irods_zone = 'tempZone'
 irods_port = 1247
 #title = 'iRODS Password Booth'
-#background_color = 'lightblue'
 #custom_html_header = ''
 #custom_html_footer = ''
-#custom_css = ''

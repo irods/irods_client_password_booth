@@ -9,5 +9,6 @@ services:
             - "host.docker.internal:host-gateway"
         volumes:
             - ./irods_fav.ico:/favicon.ico:ro
+            - ./app.css:/app.css:ro
             - ./app.config:/app.config:ro
             - ./app.py:/app.py:ro

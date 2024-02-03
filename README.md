@@ -26,15 +26,15 @@ Other configuration settings can affect the layout:
 
 ```
 #title = 'iRODS Password Booth'
-#background_color = 'lightblue'
 #custom_html_header = ''
 #custom_html_footer = ''
-#custom_css = ''
 ```
+
+The CSS can be changed by editing `app.css`.
 
 ## Building and Running with Docker Compose
 
-Docker Compose has been configured to volume mount the local `app.config`.
+Docker Compose has been configured to volume mount the local `app.config` and `app.css`.
 
 ```
 docker compose up

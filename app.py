@@ -1,39 +1,10 @@
 import cherrypy
 from irods.session import iRODSSession
 
-default_css = '''\
-    .button {
-      border: none;
-      color: white;
-      padding: 20px;
-      text-align: center;
-      text-decoration: none;
-      display: inline-block;
-      font-size: 18px;
-      margin: 30px 60px;
-      cursor: pointer;
-      background-color: #008CBA; /* Blue */
-    }
-    input {
-      width: 100%;
-      font-size: 110%;
-      padding: 12px 20px;
-      margin: 8px 0;
-      box-sizing: border-box;
-    }
-    td {
-      font-size: 110%;
-      font-weight: bold;
-      text-align: right;
-    }
-'''
-
 defaults = {
   'title': "iRODS Password Booth",
-  'background_color': 'lightblue',
   'custom_html_header': '',
-  'custom_html_footer': "<p><a href='/'>Home</a> - <a href='/test'>test</a></p>",
-  'custom_css': default_css
+  'custom_html_footer': "<p><a href='/'>Home</a> - <a href='/test'>test</a></p>"
 }
 
 def merge_custom_into_default_config(config):
@@ -46,21 +17,19 @@ def get_header(config):
 <html>
     <head>
     <title>{}</title>
+    <link rel="stylesheet" href="app.css">
     </head>
     <body>
 '''.format(defaults['title'])
-    bg = '<style>body { background-color: '+defaults['background_color']+'; }</style>'
-    style = '<style>'+defaults['custom_css']+'</style>'
-    return h + bg + style + defaults['custom_html_header']
+    return h + defaults['custom_html_header']
 
 def get_footer(config):
     defaults.update(config)
     f = '''\
-    {}
     </body>
 </html>
-'''.format(defaults['custom_html_footer'])
-    return f
+'''
+    return defaults['custom_html_footer'] + f
 
 class Root(object):
 
