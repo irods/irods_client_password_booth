@@ -8,4 +8,6 @@ services:
         extra_hosts:
             - "host.docker.internal:host-gateway"
         volumes:
+            - ./irods_fav.ico:/favicon.ico:ro
             - ./app.config:/app.config:ro
+            - ./app.py:/app.py:ro

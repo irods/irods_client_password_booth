@@ -1,11 +1,7 @@
 import cherrypy
 from irods.session import iRODSSession
 
-html_header = '''\
-<html>
-    <head>
-    <title>iRODS Password Booth</title>
-    <style>
+default_css = '''\
     .button {
       border: none;
       color: white;
@@ -18,40 +14,83 @@ html_header = '''\
       cursor: pointer;
       background-color: #008CBA; /* Blue */
     }
-    </style>
-    </head>
-    <body>
+    input {
+      width: 100%;
+      font-size: 110%;
+      padding: 12px 20px;
+      margin: 8px 0;
+      box-sizing: border-box;
+    }
+    td {
+      font-size: 110%;
+      font-weight: bold;
+      text-align: right;
+    }
 '''
 
-html_footer = '''\
-    <p><a href='/'>Home</a></p>
+defaults = {
+  'title': "iRODS Password Booth",
+  'background_color': 'lightblue',
+  'custom_html_header': '',
+  'custom_html_footer': "<p><a href='/'>Home</a> - <a href='/test'>test</a></p>",
+  'custom_css': default_css
+}
+
+def merge_custom_into_default_config(config):
+    defaults.update(config)
+    return defaults
+
+def get_header(config):
+    defaults.update(config)
+    h = '''\
+<html>
+    <head>
+    <title>{}</title>
+    </head>
+    <body>
+'''.format(defaults['title'])
+    bg = '<style>body { background-color: '+defaults['background_color']+'; }</style>'
+    style = '<style>'+defaults['custom_css']+'</style>'
+    return h + bg + style + defaults['custom_html_header']
+
+def get_footer(config):
+    defaults.update(config)
+    f = '''\
+    {}
     </body>
 </html>
-'''
+'''.format(defaults['custom_html_footer'])
+    return f
 
 class Root(object):
 
     @cherrypy.expose
     def index(self):
+        config = merge_custom_into_default_config(cherrypy.request.app.config['password_booth'])
+        html_header = get_header(cherrypy.request.app.config['password_booth'])
+        html_footer = get_footer(cherrypy.request.app.config['password_booth'])
         html_body = '''\
         <p>
         <form method="post" action="modify_password">
-        <table border=0>
+        <table border=0 align=center>
+        <tr><td colspan=2><center><h1>{}</h1></center></td></tr>
         <tr><td>Username:</td><td><input type="text" value="" name="username"/></td></tr>
         <tr><td>Current Password:</td><td><input type="password" value="" name="oldpass"/></td></tr>
         <tr><td>New Password:</td><td><input type="password" value="" name="newpass"/></td></tr>
         <tr><td>Confirm New Password:</td><td><input type="password" value="" name="newpassconfirm"/></td></tr>
-        <tr><td colspan=2><button class="button" type="submit">Change Password</button></td></tr>
+        <tr><td colspan=2><center><button class="button" type="submit">Change Password</button></center></td></tr>
         </table>
         </form>
         </p>
-        '''
+        '''.format(config['title'])
         return html_header + html_body + html_footer
 
     @cherrypy.expose
     def modify_password(self, *args, **kwargs):
         if cherrypy.request.method != 'POST':
             return 'only POST supported'
+        html_header = get_header(cherrypy.request.app.config['password_booth'])
+        html_footer = get_footer(cherrypy.request.app.config['password_booth'])
         username = kwargs.get('username')
         oldpass = kwargs.get('oldpass')
         newpass = kwargs.get('newpass')
