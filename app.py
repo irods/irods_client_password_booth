@@ -57,10 +57,19 @@ class Root(object):
                             password='apass',
                             **ssl_settings) as session:
             try:
-                h = session.collections.get("/{}/home/{}".format(session.zone, session.username))
                 html_body = ""
-                html_body += "dir[{}]".format(dir(h))
-                html_body += "<br/><br/>home collection"
+                html_body += '<br/>session.server_version [{}]'.format(session.server_version)
+                connections = session.pool.active | session.pool.idle
+                html_body += '<br/>len(connections) [{}]'.format(len(connections))
+                is_SSL = len(connections) > 0 and all(isinstance(conn.socket, ssl.SSLSocket) for conn in connections)
+                html_body += '<br/>is_SSL [{}]'.format(is_SSL)
+                html_body += '<br/>session.host [{}]'.format(session.host)
+                html_body += '<br/>session.zone [{}]'.format(session.zone)
+                html_body += '<br/>session.port [{}]'.format(session.port)
+                html_body += '<br/>session.numThreads [{}]'.format(session.numThreads)
+                home_collection = "/{}/home/{}".format(session.zone, session.username)
+                html_body += '<br/><br/>home_collection [{}]'.format(home_collection)
+                h = session.collections.get(home_collection)
                 html_body += "<br/>- id[{}] path[{}] ctime[{}] mtime[{}]".format(h.id, h.path, h.create_time, h.modify_time)
                 html_body += "<br/><br/>subcollections"
                 for c in h.subcollections:
