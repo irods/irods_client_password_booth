@@ -28,6 +28,7 @@ Other configuration settings can affect the layout:
 
 ```
 #title = 'iRODS Password Booth'
+#application_name = 'irods_client_password_booth'
 #custom_html_header = ''
 #custom_html_footer = ''
 ```

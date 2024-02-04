@@ -4,6 +4,7 @@ from irods.session import iRODSSession
 
 defaults = {
   'title': "iRODS Password Booth",
+  'application_name': 'irods_client_password_booth',
   'custom_html_header': '',
   'custom_html_footer': "<p><a href='/'>Home</a> - <a href='/test'>test</a></p>"
 }
@@ -55,9 +56,11 @@ class Root(object):
                             zone=config['irods_zone'],
                             user='alice',
                             password='apass',
+                            application_name=config['application_name'],
                             **ssl_settings) as session:
             try:
                 html_body = ""
+                html_body += '<br/>session.pool.application_name [{}]'.format(session.pool.application_name)
                 html_body += '<br/>session.server_version [{}]'.format(session.server_version)
                 connections = session.pool.active | session.pool.idle
                 html_body += '<br/>len(connections) [{}]'.format(len(connections))
@@ -135,6 +138,7 @@ class Root(object):
                             zone=config['irods_zone'],
                             user=username,
                             password=oldpass,
+                            application_name=config['application_name'],
                             **ssl_settings) as session:
             try:
                 authenticated_user = session.users.get(session.username)

@@ -16,6 +16,7 @@ tools.staticfile.filename: "/favicon.ico"
 
 [password_booth]
 #title = 'iRODS Password Booth'
+#application_name = 'irods_client_password_booth'
 #custom_html_header = ''
 #custom_html_footer = ''
 #irods_host = 'host.docker.internal'
